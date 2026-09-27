@@ -1,0 +1,117 @@
+.auth {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.auth__card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 32px 30px;
+}
+
+.auth__eyebrow {
+  color: var(--amber);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  margin: 0 0 4px;
+}
+
+.auth__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 30px;
+  margin: 0 0 20px;
+}
+
+.auth__roles {
+  display: flex;
+  background: var(--bg-night);
+  border-radius: 5px;
+  padding: 3px;
+  margin-bottom: 22px;
+}
+
+.auth__role {
+  flex: 1;
+  background: none;
+  border: none;
+  color: var(--text-mid);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 0;
+  border-radius: 4px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.auth__role.is-active {
+  background: var(--bg-panel-raised);
+  color: var(--amber);
+}
+
+.auth__form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.auth__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-mid);
+}
+
+.auth__field input {
+  background: var(--bg-night);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 10px 12px;
+  color: var(--text-hi);
+  font-size: 14px;
+}
+.auth__field input:focus {
+  outline: none;
+  border-color: var(--amber-dim);
+}
+
+.auth__error {
+  color: var(--danger);
+  font-size: 13px;
+  margin: 0;
+}
+
+.auth__submit {
+  margin-top: 6px;
+  background: var(--amber);
+  color: #17223a;
+  border: none;
+  border-radius: 4px;
+  padding: 12px 0;
+  font-size: 15px;
+  font-weight: 600;
+  transition: background 0.15s ease;
+}
+.auth__submit:hover { background: #f7bb5e; }
+.auth__submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.auth__switch {
+  margin: 20px 0 0;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-mid);
+}
+
+.auth__switch-btn {
+  background: none;
+  border: none;
+  color: var(--amber);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 0;
+}

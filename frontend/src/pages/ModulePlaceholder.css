@@ -1,0 +1,24 @@
+.placeholder {
+  min-height: 100vh;
+  padding: 28px clamp(20px, 5vw, 56px);
+}
+.placeholder__back {
+  background: none;
+  border: none;
+  color: var(--text-mid);
+  font-size: 13px;
+  padding: 0;
+  margin-bottom: 30px;
+}
+.placeholder__back:hover { color: var(--text-hi); }
+.placeholder h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 32px;
+  margin: 0 0 10px;
+}
+.placeholder p {
+  color: var(--text-mid);
+  max-width: 480px;
+  line-height: 1.6;
+}
