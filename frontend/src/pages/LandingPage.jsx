@@ -24,7 +24,6 @@ export default function LandingPage() {
       </svg>
 
       <main className="landing__content">
-        <p className="landing__eyebrow">Disaster Preparedness &amp; Response Education</p>
         <h1 className="landing__title">
           सतर्क <span>रहें</span>
         </h1>

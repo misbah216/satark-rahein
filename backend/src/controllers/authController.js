@@ -16,6 +16,9 @@ function toSafeUser(user) {
     email: user.email,
     role: user.role,
     roleField: user.roleField,
+    totalScore: user.totalScore || 0,
+    quizzesCompleted: user.quizzesCompleted || 0,
+    quizHistory: user.quizHistory || [],
   };
 }
 
@@ -67,7 +70,11 @@ export async function login(req, res) {
 }
 
 export async function me(req, res) {
-  const user = await User.findById(req.user.id);
-  if (!user) return res.status(404).json({ message: 'User not found' });
-  res.json({ user: toSafeUser(user) });
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json({ user: toSafeUser(user) });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch user', error: err.message });
+  }
 }

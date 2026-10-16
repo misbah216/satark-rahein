@@ -6,6 +6,8 @@ import DrillsPage from './pages/DrillsPage.jsx';
 import QuizPage from './pages/QuizPage.jsx';
 import GamesPage from './pages/GamesPage.jsx';
 import ChatbotPage from './pages/ChatbotPage.jsx';
+import AdminDashboard from './pages/AdminDashboard.jsx';
+
 
 export default function App() {
   return (
@@ -16,6 +18,7 @@ export default function App() {
       <Route path="/drills" element={<DrillsPage />} />
       <Route path="/quiz" element={<QuizPage />} />
       <Route path="/games" element={<GamesPage />} />
+      <Route path="/admin" element={<AdminDashboard />} />
       <Route path="/chatbot" element={<ChatbotPage />} />
     </Routes>
   );

@@ -11,9 +11,41 @@ const userSchema = new mongoose.Schema(
       enum: ['student', 'teacher', 'admin'],
       required: true,
     },
-    // Meaning depends on role: roll number (student), staff ID (teacher),
-    // institute code (admin) — kept as one flexible field for now.
     roleField: { type: String, trim: true },
+
+    totalScore: {
+      type: Number,
+      default: 0,
+    },
+    quizzesCompleted: {
+      type: Number,
+      default: 0,
+    },
+    quizHistory: [
+      {
+        category: {
+          type: String,
+          enum: ['Earthquake Safety', 'Fire Safety', 'Flood Preparedness', 'Cyclone & Storms'],
+          required: true,
+        },
+        score: {
+          type: Number,
+          required: true,
+        },
+        totalQuestions: {
+          type: Number,
+          required: true,
+        },
+        percentage: {
+          type: Number,
+          required: true,
+        },
+        completedAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
   },
   { timestamps: true }
 );
