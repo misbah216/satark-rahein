@@ -1,141 +1,116 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import * as api from '../api.js';
 
 const THEME = {
-  primary: '#ff8c00',
-  glow: 'rgba(255, 140, 0, 0.45)',
-  bgGlass: 'rgba(13, 20, 38, 0.85)',
-  border: 'rgba(255, 140, 0, 0.35)',
+  primary: '#255d69',           // Ocean Steel Blue
+  secondary: '#6EADBC',
+  bgCard: '#d7edf2',            // Ocean Cyan Light Pastel
+  border: '#6EADBC',
+  textDark: '#1e293b',
+  textMuted: '#475569',
 };
 
-const DRILL_SCENARIOS = [
+// Real life-or-death decision steps with lethal mistakes
+const INTERACTIVE_DRILLS = [
   {
-    id: 'fire-lab',
-    title: 'Chemistry Lab Chemical Fire',
-    hazard: 'Fire Hazard',
-    startingRoom: '2nd Floor Chemistry Lab',
-    difficulty: 'Medium',
-    brief: 'A beaker of flammable solvent tips over on an active hot plate, triggering a dense chemical fire in the 2nd floor science wing.',
+    id: 'fire-drill',
+    category: 'Fire Safety',
+    title: 'High-Rise Academic Block Fire Drill',
+    severity: 'Code Red',
+    estimatedTime: '3 mins',
+    icon: '🔥',
+    overview: 'Simulated 3rd-floor electrical fire with dense toxic smoke rapidly spreading into the main stairwell.',
     steps: [
       {
-        stepIndex: 1,
-        situation: 'Dense black smoke starts spreading near the lab door, and the fire alarm sounds. What is your immediate primary move?',
+        step: 1,
+        situation: 'Corridor fire alarm starts blaring loudly. What is your immediate first action?',
         options: [
-          {
-            text: 'Gather personal bags, laptop, and coats before moving out',
-            isCorrect: false,
-            feedback: 'Wrong. Evacuation must be instantaneous; delaying to save belongings causes smoke inhalation fatalities.'
-          },
-          {
-            text: 'Drop low to crawl beneath the rising smoke towards the secondary emergency fire exit',
-            isCorrect: true,
-            feedback: 'Correct! Smoke and toxic fumes collect near the ceiling. Staying below 2 feet provides cooler, breathable air.'
-          },
-          {
-            text: 'Run upright towards the central passenger elevator',
-            isCorrect: false,
-            feedback: 'Wrong. Never take an elevator during a building fire; power failure can trap you inside a smoke-filled shaft.'
-          }
+          { text: 'Wait to pack your laptop, chargers, and heavy bags before moving.', isSafe: false, feedback: 'Deadly Delay! Fire and smoke double in volume every 30 seconds. Never delay evacuation for personal belongings.' },
+          { text: 'Leave all heavy belongings behind instantly and alert classmates to evacuate.', isSafe: true, feedback: 'Correct Protocol! Immediate egress saves lives.' }
         ]
       },
       {
-        stepIndex: 2,
-        situation: 'You reach the emergency stairwell door. Before pushing it open, what safety protocol must you execute?',
+        step: 2,
+        situation: 'You reach the corridor door. The metal door handle feels extremely hot to touch.',
         options: [
-          {
-            text: 'Touch the door handle and upper panel with the back of your hand to test for heat',
-            isCorrect: true,
-            feedback: 'Correct! Using the back of your hand prevents reflex grabbing if the metal is burning hot, indicating fire on the other side.'
-          },
-          {
-            text: 'Kick the door open forcefully to rush out quickly',
-            isCorrect: false,
-            feedback: 'Wrong. Opening an active door to an intense fire can create a lethal backdraft or flashover.'
-          },
-          {
-            text: 'Lock the door behind you so the fire does not enter the stairwell',
-            isCorrect: false,
-            feedback: 'Wrong. Exit routes and doors must remain unlocked to avoid trapping others behind you.'
-          }
+          { text: 'Push the door open quickly to run through the flames before it spreads.', isSafe: false, feedback: 'Fatal Flashover Trap! A hot door handle indicates active raging fire on the other side. Opening it feeds oxygen causing an explosive backdraft.' },
+          { text: 'Keep door sealed, place cloth beneath crack, and head to alternate Secondary Exit B.', isSafe: true, feedback: 'Correct Protocol! Sealed doors buy crucial survival time against lethal smoke.' }
         ]
       },
       {
-        stepIndex: 3,
-        situation: 'The door feels cool and you enter the stairwell. You make it to the ground level exit. Where should you assemble?',
+        step: 3,
+        situation: 'The alternate escape hallway is filling with thick, stinging black smoke.',
         options: [
-          {
-            text: 'Stand directly under the laboratory external balcony to record footage',
-            isCorrect: false,
-            feedback: 'Wrong. Glass window panes frequently burst outward under extreme heat, causing severe lacerations.'
-          },
-          {
-            text: 'Proceed directly to the designated Open Campus Assembly Ground and report to your drill marshal',
-            isCorrect: true,
-            feedback: 'Correct! Safe staging at the designated assembly point ensures headcounts can be completed swiftly by safety wardens.'
-          }
+          { text: 'Drop onto hands and knees, keeping head 1-2 feet off the ground, crawling towards exit.', isSafe: true, feedback: 'Correct Protocol! Cooler, breathable oxygen remains along the lowest 2 feet.' },
+          { text: 'Stand tall and sprint forward holding your breath.', isSafe: false, feedback: 'Lethal Smoke Inhalation! Hot toxic carbon monoxide rises to the ceiling; standing up causes sudden unconsciousness within 2 breaths.' }
+        ]
+      },
+      {
+        step: 4,
+        situation: 'You reach the landing zone with both the passenger elevator and fire stairs open.',
+        options: [
+          { text: 'Take the fast express elevator down to Ground floor.', isSafe: false, feedback: 'Elevator Shaft Death Trap! Elevators frequently lose power, turning the metal carriage into a suffocating chimney furnace.' },
+          { text: 'Take the fire-rated stairwell holding the wall handrails calmly.', isSafe: true, feedback: 'Correct Protocol! Pressurized stairwells provide continuous safe descent.' }
+        ]
+      },
+      {
+        step: 5,
+        situation: 'You successfully exit the building into the open football ground.',
+        options: [
+          { text: 'Run back inside because you realize your phone is still on the desk.', isSafe: false, feedback: 'Extreme Hazard! More than 30% of fire casualties occur when occupants re-enter burning structures.' },
+          { text: 'Assemble at the designated muster zone and report attendance to the floor safety marshal.', isSafe: true, feedback: 'Correct Protocol! Roll-call verification ensures firefighters do not risk lives searching for you.' }
         ]
       }
     ]
   },
   {
-    id: 'earthquake-auditorium',
-    title: 'Severe Earthquake Tremors in Classroom',
-    hazard: 'Earthquake Hazard',
-    startingRoom: '3rd Floor Lecture Hall',
-    difficulty: 'Easy',
-    brief: 'Vigorous horizontal shaking begins during a lecture. Ceiling fixtures and plaster fragments begin falling.',
+    id: 'earthquake-drill',
+    category: 'Earthquake Safety',
+    title: 'Seismic Tremor Response Drill (Zone IV/V)',
+    severity: 'High Alert',
+    estimatedTime: '2 mins',
+    icon: '🏚️',
+    overview: 'High magnitude tremors causing violent shaking, glass fracture, and heavy ceiling fixture collapse.',
     steps: [
       {
-        stepIndex: 1,
-        situation: 'The floor shakes violently, making running almost impossible. What is the standard life-safety stance?',
+        step: 1,
+        situation: 'Violent tremors suddenly shake the floor while you are in a 3rd-floor classroom.',
         options: [
-          {
-            text: 'Drop, Cover under sturdy study benches, and Hold On firmly to the table legs',
-            isCorrect: true,
-            feedback: 'Correct! The Drop, Cover, and Hold On posture protects vital organs and head from falling structural debris.'
-          },
-          {
-            text: 'Rush in a crowd towards the narrow exit doorway immediately',
-            isCorrect: false,
-            feedback: 'Wrong. Crowd stampedes and falling corridor tiles cause more injuries during tremors than structural collapse.'
-          },
-          {
-            text: 'Stand near the glass facade to look outside for safety vehicles',
-            isCorrect: false,
-            feedback: 'Wrong. High shear stress shatters architectural glass panes immediately during seismic waves.'
-          }
+          { text: 'Rush into the corridor immediately while ground is vibrating violently.', isSafe: false, feedback: 'Critical Hazard! Running during violent shaking causes falls, head trauma, and impacts from falling light fixtures.' },
+          { text: 'Drop onto hands and knees immediately right where you are.', isSafe: true, feedback: 'Correct Protocol! Dropping low prevents you from being thrown to the floor.' }
         ]
       },
       {
-        stepIndex: 2,
-        situation: 'The primary tremor stops after 40 seconds. An announcement signals structural evacuation before aftershocks arrive. How should the class descend?',
+        step: 2,
+        situation: 'Ceiling plaster and glass fragments begin raining down around you.',
         options: [
-          {
-            text: 'Descend single-file along the inner wall of the primary reinforced stairwell',
-            isCorrect: true,
-            feedback: 'Correct! Inner structural stair walls bear load best and allow orderly descent without crowding railings.'
-          },
-          {
-            text: 'Jump from the first-floor terrace landing onto soft hedges',
-            isCorrect: false,
-            feedback: 'Wrong. Jumping from heights leads to fractures and incapacitation.'
-          }
+          { text: 'Cover your head and torso under a heavy reinforced workbench or desk.', isSafe: true, feedback: 'Correct Protocol! Desk frames absorb falling structural loads.' },
+          { text: 'Stand beside the large glass windows to observe ground damage.', isSafe: false, feedback: 'Severe Laceration Hazard! Windows shatter under seismic torsion into lethal flying shards.' }
         ]
       },
       {
-        stepIndex: 3,
-        situation: 'Once outside on the perimeter roadway, a live power line is dangling across the lawn. What is the protocol?',
+        step: 3,
+        situation: 'The desk begins sliding across the vibrating floor under intense shaking.',
         options: [
-          {
-            text: 'Attempt to move the cable using a dry branch or umbrella',
-            isCorrect: false,
-            feedback: 'Wrong. High-voltage utility lines can arc through wood or conductive materials. Keep at least 10 meters distance.'
-          },
-          {
-            text: 'Maintain at least a 35-foot perimeter, alert wardens, and shuffle away without lifting your feet',
-            isCorrect: true,
-            feedback: 'Correct! Shuffling with feet close together minimizes ground voltage differentials that cause electrocution.'
-          }
+          { text: 'Hold on firmly to the legs of the desk with both hands and move with it.', isSafe: true, feedback: 'Correct Protocol! "Drop, Cover, and Hold On" maintains your shield.' },
+          { text: 'Let go of the desk and stand up in the doorway frame.', isSafe: false, feedback: 'Outdated & Dangerous! Modern doorways are not load-bearing and unlatched doors crush fingers under tremors.' }
+        ]
+      },
+      {
+        step: 4,
+        situation: 'Tremors cease after 50 seconds. It is time to evacuate the classroom.',
+        options: [
+          { text: 'Walk calmly down the central staircase, protecting your head with a book/bag.', isSafe: true, feedback: 'Correct Protocol! Protect vital cervical vertebrae while exiting.' },
+          { text: 'Jump from the first floor balcony to reach the grass quickly.', isSafe: false, feedback: 'Severe Injury! Fractured limbs prevent rescue evacuation.' }
+        ]
+      },
+      {
+        step: 5,
+        situation: 'You are outdoors in the campus quad. High-tension power cables are swaying above.',
+        options: [
+          { text: 'Stand under the power lines or near large brick boundary walls.', isSafe: false, feedback: 'Electrocution & Wall Collapse! Secondary aftershocks topple unreinforced masonry walls and snap power lines.' },
+          { text: 'Move at least 50 meters away into open open ground, clear of wires and facades.', isSafe: true, feedback: 'Correct Protocol! Open ground is the only zero-hazard seismic zone.' }
         ]
       }
     ]
@@ -144,345 +119,502 @@ const DRILL_SCENARIOS = [
 
 export default function DrillsPage() {
   const navigate = useNavigate();
+  const [selectedCategory, setSelectedCategory] = useState('ALL');
   const [activeDrill, setActiveDrill] = useState(null);
-  const [currentStepIndex, setCurrentStepIndex] = useState(0);
-  const [selectedOption, setSelectedOption] = useState(null);
-  const [isAnswered, setIsAnswered] = useState(false);
-  const [drillCompleted, setDrillCompleted] = useState(false);
-  const [mistakesCount, setMistakesCount] = useState(0);
+  
+  // Track choices: { [stepIndex]: selectedOptionIndex }
+  const [userDecisions, setUserDecisions] = useState({});
+  const [drillSummary, setDrillSummary] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
 
-  const startDrill = (drill) => {
+  const filteredDrills = selectedCategory === 'ALL'
+    ? INTERACTIVE_DRILLS
+    : INTERACTIVE_DRILLS.filter((d) => d.category === selectedCategory);
+
+  const handleStartDrill = (drill) => {
     setActiveDrill(drill);
-    setCurrentStepIndex(0);
-    setSelectedOption(null);
-    setIsAnswered(false);
-    setDrillCompleted(false);
-    setMistakesCount(0);
+    setUserDecisions({});
+    setDrillSummary(null);
   };
 
-  const handleSelectOption = (opt) => {
-    if (isAnswered) return;
-    setSelectedOption(opt);
-    setIsAnswered(true);
-    if (!opt.isCorrect) setMistakesCount((prev) => prev + 1);
+  const handleSelectOption = (stepIdx, optIdx) => {
+    setUserDecisions((prev) => ({
+      ...prev,
+      [stepIdx]: optIdx
+    }));
   };
 
-  const handleNextStep = () => {
-    if (currentStepIndex < activeDrill.steps.length - 1) {
-      setCurrentStepIndex((prev) => prev + 1);
-      setSelectedOption(null);
-      setIsAnswered(false);
-    } else {
-      setDrillCompleted(true);
+  const handleEvaluateDrill = async () => {
+    if (!activeDrill) return;
+    const totalSteps = activeDrill.steps.length;
+    const answeredSteps = Object.keys(userDecisions).length;
+
+    if (answeredSteps < totalSteps) {
+      alert(`Simulation incomplete! You must make a safety decision for all ${totalSteps} emergency situations.`);
+      return;
     }
-  };
 
-  const resetToDirectory = () => {
+    setSubmitting(true);
+
+    // Calculate score with negative marking
+    let safeCount = 0;
+    let mistakeCount = 0;
+    let netPoints = 0;
+    const reviewLog = [];
+
+    activeDrill.steps.forEach((st, idx) => {
+      const chosenOptIdx = userDecisions[idx];
+      const chosenOption = st.options[chosenOptIdx];
+      const safeOption = st.options.find((o) => o.isSafe);
+
+      if (chosenOption.isSafe) {
+        safeCount++;
+        netPoints += 5; // +5 points for safe action
+      } else {
+        mistakeCount++;
+        netPoints -= 10; // -10 points penalty for lethal mistake
+      }
+
+      reviewLog.push({
+        step: st.step,
+        situation: st.situation,
+        userChoice: chosenOption.text,
+        isSafe: chosenOption.isSafe,
+        feedback: chosenOption.feedback,
+        correctProcedure: safeOption.text
+      });
+    });
+
+    const isPassed = mistakeCount === 0;
+
+    // Backend sync
+    const token = localStorage.getItem('sr_token');
+    const payload = {
+      category: activeDrill.category,
+      score: safeCount,
+      totalQuestions: totalSteps,
+      percentage: Math.max(0, Math.round((safeCount / totalSteps) * 100)),
+    };
+
+    try {
+      if (typeof api.recordQuizResult === 'function') {
+        await api.recordQuizResult(payload);
+      } else {
+        await fetch('http://localhost:5000/api/quiz/result', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify(payload),
+        });
+      }
+    } catch (e) {}
+
+    // Update local user score (Net score can increase or decrease based on mistakes)
+    const rawUser = localStorage.getItem('sr_user');
+    if (rawUser) {
+      const u = JSON.parse(rawUser);
+      u.totalScore = Math.max(0, (u.totalScore || 0) + netPoints);
+      u.quizzesCompleted = (u.quizzesCompleted || 0) + 1;
+      localStorage.setItem('sr_user', JSON.stringify(u));
+    }
+
+    setDrillSummary({
+      title: activeDrill.title,
+      category: activeDrill.category,
+      safeCount,
+      mistakeCount,
+      netPoints,
+      isPassed,
+      reviewLog
+    });
+
     setActiveDrill(null);
-    setDrillCompleted(false);
+    setSubmitting(false);
   };
 
   return (
-    <div style={{ maxWidth: '900px', margin: '30px auto', padding: '0 20px', fontFamily: 'inherit', color: '#f3f4f6' }}>
+    <div style={{ maxWidth: '960px', margin: '30px auto', padding: '0 20px', fontFamily: 'inherit', color: '#F1F7D4' }}>
       
-      {/* Back Button */}
+      {/* Top Header Bar */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <button
-          onClick={() => (activeDrill ? resetToDirectory() : navigate('/dashboard'))}
+          onClick={() => navigate('/dashboard')}
           style={{
             display: 'inline-flex',
             alignItems: 'center',
             gap: '8px',
-            background: 'rgba(255, 140, 0, 0.08)',
-            border: `1.5px solid ${THEME.border}`,
-            color: THEME.primary,
+            background: 'rgba(241, 247, 212, 0.15)',
+            border: '1.5px solid #F1F7D4',
+            color: '#F1F7D4',
             padding: '8px 16px',
             borderRadius: '10px',
             cursor: 'pointer',
             fontSize: '13px',
             fontWeight: '700',
-            boxShadow: `0 0 12px -2px ${THEME.glow}`,
+            boxShadow: '0 4px 14px rgba(0,0,0,0.2)',
           }}
         >
-          {activeDrill ? '← Exit Current Drill' : '← Back to Dashboard'}
+          ← Back to Dashboard
         </button>
 
-        {activeDrill && (
-          <span style={{ fontSize: '12px', color: THEME.primary, textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: '700' }}>
-            {activeDrill.hazard} • {activeDrill.startingRoom}
-          </span>
-        )}
+        <span style={{ fontSize: '13px', color: '#F1F7D4', fontWeight: '800', letterSpacing: '0.06em', background: 'rgba(110, 173, 188, 0.28)', padding: '5px 14px', borderRadius: '20px', border: '1px solid #6EADBC' }}>
+          🌊 Virtual Evacuation Drills
+        </span>
       </div>
 
-      {!activeDrill ? (
-        /* Scenario Directory */
-        <div>
-          <div style={{ textAlign: 'center', marginBottom: '36px' }}>
-            <h1 style={{ fontSize: '32px', fontWeight: '800', color: '#ffffff', margin: 0 }}>
-              Virtual Evacuation Drills
-            </h1>
-            <p style={{ color: '#94a3b8', fontSize: '15px', marginTop: '8px' }}>
-              Select a scenario to practice real-time emergency decision routes.
-            </p>
-          </div>
+      {/* Main Title Header */}
+      <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+        <h1 style={{ fontSize: '32px', fontWeight: '800', color: '#F1F7D4', margin: 0 }}>
+          Interactive Evacuation Drills
+        </h1>
+        <p style={{ color: '#d5dde8', fontSize: '15px', marginTop: '8px' }}>
+          Simulated live hazard scenarios. <strong>Warning:</strong> Wrong survival choices trigger strict negative penalty points!
+        </p>
+      </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '22px' }}>
-            {DRILL_SCENARIOS.map((drill) => (
-              <div
-                key={drill.id}
-                style={{
-                  backgroundColor: THEME.bgGlass,
-                  border: `2px solid ${THEME.primary}`,
-                  boxShadow: `0 0 20px -3px ${THEME.glow}`,
-                  borderRadius: '18px',
-                  padding: '26px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  position: 'relative',
-                  overflow: 'hidden',
-                }}
-              >
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '14px' }}>
-                    <span style={{
-                      backgroundColor: 'rgba(255, 140, 0, 0.15)',
-                      color: THEME.primary,
-                      fontSize: '11px',
-                      padding: '4px 12px',
-                      borderRadius: '20px',
-                      fontWeight: '700',
-                      border: `1px solid ${THEME.border}`,
-                    }}>
-                      {drill.hazard}
-                    </span>
-                    <span style={{ fontSize: '12px', color: '#94a3b8' }}>
-                      Level: {drill.difficulty}
-                    </span>
-                  </div>
+      {/* Category Filter Pills */}
+      <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '32px' }}>
+        {['ALL', 'Fire Safety', 'Earthquake Safety'].map((cat) => {
+          const isActive = selectedCategory === cat;
+          return (
+            <button
+              key={cat}
+              onClick={() => setSelectedCategory(cat)}
+              style={{
+                padding: '9px 20px',
+                borderRadius: '24px',
+                border: isActive ? `2px solid #6EADBC` : '1.5px solid rgba(241, 247, 212, 0.25)',
+                backgroundColor: isActive ? '#d7edf2' : 'rgba(241, 247, 212, 0.08)',
+                color: isActive ? '#255d69' : '#F1F7D4',
+                cursor: 'pointer',
+                fontWeight: '800',
+                fontSize: '13.5px',
+                boxShadow: isActive ? '0 4px 16px rgba(110, 173, 188, 0.35)' : 'none',
+              }}
+            >
+              {cat === 'ALL' ? 'All Drills' : cat}
+            </button>
+          );
+        })}
+      </div>
 
-                  <h3 style={{ fontSize: '20px', color: '#ffffff', margin: '0 0 10px 0', fontWeight: '800' }}>
-                    {drill.title}
-                  </h3>
-                  <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: '1.6', margin: '0 0 20px 0' }}>
-                    {drill.brief}
-                  </p>
+      {/* Drills Cards Grid */}
+      {!drillSummary && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px', marginBottom: '40px' }}>
+          {filteredDrills.map((drill) => (
+            <div
+              key={drill.id}
+              style={{
+                backgroundColor: '#d7edf2',
+                border: `2px solid #6EADBC`,
+                borderRadius: '24px',
+                padding: '28px',
+                color: '#1e293b',
+                boxShadow: '0 12px 30px -8px rgba(0, 0, 0, 0.25)',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+              }}
+            >
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                  <span style={{ fontSize: '11.5px', fontWeight: '800', color: '#255d69', textTransform: 'uppercase', letterSpacing: '0.06em', background: 'rgba(37, 93, 105, 0.12)', padding: '4px 10px', borderRadius: '16px' }}>
+                    {drill.category}
+                  </span>
+                  <span style={{ fontSize: '12px', fontWeight: '800', color: '#b91c1c', background: '#fee2e2', padding: '3px 8px', borderRadius: '12px' }}>
+                    -10 penalty per error
+                  </span>
                 </div>
 
-                <button
-                  onClick={() => startDrill(drill)}
-                  style={{
-                    width: '100%',
-                    padding: '12px 0',
-                    backgroundColor: THEME.primary,
-                    color: '#070c18',
-                    border: 'none',
-                    borderRadius: '10px',
+                <div style={{ fontSize: '42px', marginBottom: '12px' }}>{drill.icon}</div>
+
+                <h2 style={{ fontSize: '21px', fontWeight: '800', color: '#1e293b', margin: '0 0 10px 0' }}>
+                  {drill.title}
+                </h2>
+
+                <p style={{ color: '#334155', fontSize: '13.5px', lineHeight: '1.6', margin: '0 0 20px 0' }}>
+                  {drill.overview}
+                </p>
+
+                <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: '12px', border: '1px solid #cbd5e1', fontSize: '12.5px', color: '#475569', marginBottom: '22px' }}>
+                  ⚖️ <strong>Scoring:</strong> +5 pts per correct procedure • <strong>-10 pts deduction</strong> for fatal traps.
+                </div>
+              </div>
+
+              <button
+                onClick={() => handleStartDrill(drill)}
+                style={{
+                  width: '100%',
+                  padding: '13px 0',
+                  backgroundColor: '#255d69',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '12px',
+                  fontWeight: '800',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 14px rgba(37, 93, 105, 0.3)',
+                }}
+              >
+                Launch Decision Simulation →
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* 🔴 ACTIVE DECISION DRILL MODAL */}
+      {activeDrill && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          backgroundColor: 'rgba(21, 24, 33, 0.88)',
+          backdropFilter: 'blur(8px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+          padding: '20px',
+        }}>
+          <div style={{
+            backgroundColor: '#d7edf2',
+            border: `2px solid #6EADBC`,
+            borderRadius: '26px',
+            padding: '32px',
+            maxWidth: '680px',
+            width: '100%',
+            color: '#1e293b',
+            boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
+            maxHeight: '90vh',
+            overflowY: 'auto',
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '14px' }}>
+              <div>
+                <span style={{ fontSize: '11px', fontWeight: '800', color: '#b91c1c', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                  Active Emergency Simulation • High Risk
+                </span>
+                <h2 style={{ fontSize: '24px', fontWeight: '800', margin: '4px 0 0 0', color: '#1e293b' }}>
+                  {activeDrill.icon} {activeDrill.title}
+                </h2>
+              </div>
+              <button
+                onClick={() => setActiveDrill(null)}
+                style={{ background: 'none', border: 'none', fontSize: '22px', fontWeight: '800', color: '#475569', cursor: 'pointer' }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <p style={{ color: '#475569', fontSize: '13.5px', margin: '0 0 20px 0' }}>
+              Make split-second life-safety choices below. <em>Remember: Every wrong step penalizes your readiness score.</em>
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '18px', marginBottom: '26px' }}>
+              {activeDrill.steps.map((st, sIdx) => {
+                const selectedOpt = userDecisions[sIdx];
+                return (
+                  <div key={sIdx} style={{ background: '#ffffff', borderRadius: '16px', padding: '18px', border: '1.5px solid #cbd5e1' }}>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '10px' }}>
+                      <span style={{ background: '#255d69', color: '#ffffff', borderRadius: '50%', width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: '800', flexShrink: 0 }}>
+                        {st.step}
+                      </span>
+                      <strong style={{ fontSize: '14.5px', color: '#1e293b' }}>
+                        {st.situation}
+                      </strong>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {st.options.map((opt, oIdx) => {
+                        const isChosen = selectedOpt === oIdx;
+                        return (
+                          <button
+                            key={oIdx}
+                            onClick={() => handleSelectOption(sIdx, oIdx)}
+                            style={{
+                              textAlign: 'left',
+                              padding: '12px 14px',
+                              borderRadius: '10px',
+                              border: isChosen ? '2px solid #255d69' : '1.5px solid #e2e8f0',
+                              backgroundColor: isChosen ? '#d7edf2' : '#f8fafc',
+                              color: '#1e293b',
+                              fontSize: '13.5px',
+                              fontWeight: isChosen ? '700' : '500',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'flex-start',
+                              gap: '10px',
+                              transition: 'all 0.15s ease',
+                            }}
+                          >
+                            <span style={{
+                              width: '18px',
+                              height: '18px',
+                              borderRadius: '50%',
+                              border: isChosen ? '5px solid #255d69' : '2px solid #94a3b8',
+                              flexShrink: 0,
+                              marginTop: '2px',
+                              backgroundColor: '#ffffff'
+                            }} />
+                            <span>{opt.text}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <button
+              onClick={handleEvaluateDrill}
+              disabled={submitting}
+              style={{
+                width: '100%',
+                padding: '14px 0',
+                backgroundColor: '#255d69',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '12px',
+                fontWeight: '800',
+                fontSize: '14px',
+                cursor: submitting ? 'not-allowed' : 'pointer',
+                boxShadow: '0 4px 14px rgba(37, 93, 105, 0.3)',
+              }}
+            >
+              {submitting ? 'Analyzing Life-Safety Performance...' : 'Submit Drill For Evaluation →'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ⚠️ POST-DRILL FORENSIC DEBRIEF & PENALTY SUMMARY */}
+      {drillSummary && (
+        <div style={{
+          backgroundColor: '#d7edf2',
+          border: `2px solid ${drillSummary.isPassed ? '#10b981' : '#f87171'}`,
+          borderRadius: '26px',
+          padding: '36px 32px',
+          color: '#1e293b',
+          boxShadow: '0 16px 40px -8px rgba(0, 0, 0, 0.35)',
+        }}>
+          {/* Header Verdict */}
+          <div style={{ textAlign: 'center', borderBottom: '2px solid rgba(37, 93, 105, 0.15)', paddingBottom: '24px', marginBottom: '28px' }}>
+            <div style={{ fontSize: '54px', marginBottom: '8px' }}>
+              {drillSummary.isPassed ? '🏆' : '🚨'}
+            </div>
+            <h2 style={{ fontSize: '28px', fontWeight: '800', color: drillSummary.isPassed ? '#166534' : '#991b1b', margin: '0 0 6px 0' }}>
+              {drillSummary.isPassed ? 'Flawless Evacuation!' : 'Evacuation Failed: Critical Errors Identified!'}
+            </h2>
+            <p style={{ color: '#475569', fontSize: '15px', margin: '0 0 16px 0' }}>
+              {drillSummary.title} • {drillSummary.safeCount} Safe Actions | <strong>{drillSummary.mistakeCount} Fatal Traps Encountered</strong>
+            </p>
+
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '14px', background: drillSummary.netPoints >= 0 ? '#bbf7d0' : '#fee2e2', padding: '10px 22px', borderRadius: '16px', border: `1.5px solid ${drillSummary.netPoints >= 0 ? '#86efac' : '#fca5a5'}` }}>
+              <span style={{ fontSize: '13px', fontWeight: '800', textTransform: 'uppercase', color: drillSummary.netPoints >= 0 ? '#14532d' : '#991b1b' }}>
+                Net Score Impact:
+              </span>
+              <strong style={{ fontSize: '22px', color: drillSummary.netPoints >= 0 ? '#166534' : '#b91c1c' }}>
+                {drillSummary.netPoints >= 0 ? `+${drillSummary.netPoints}` : `${drillSummary.netPoints}`} Points
+              </strong>
+            </div>
+          </div>
+
+          {/* Forensic Breakdown: Kahan galti ki */}
+          <h3 style={{ fontSize: '19px', fontWeight: '800', color: '#1e293b', margin: '0 0 18px 0' }}>
+            Detailed Forensic Action Review:
+          </h3>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '32px' }}>
+            {drillSummary.reviewLog.map((r, i) => (
+              <div
+                key={i}
+                style={{
+                  backgroundColor: r.isSafe ? '#ffffff' : '#fff5f5',
+                  border: `1.5px solid ${r.isSafe ? '#86efac' : '#f87171'}`,
+                  borderRadius: '16px',
+                  padding: '18px 20px',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                  <strong style={{ fontSize: '14.5px', color: '#1e293b' }}>
+                    Step {r.step}: {r.situation}
+                  </strong>
+                  <span style={{
+                    fontSize: '11px',
                     fontWeight: '800',
-                    fontSize: '14px',
-                    cursor: 'pointer',
-                    boxShadow: `0 0 15px ${THEME.glow}`,
-                  }}
-                >
-                  Start Simulation Drill →
-                </button>
+                    padding: '3px 10px',
+                    borderRadius: '12px',
+                    backgroundColor: r.isSafe ? '#dcfce7' : '#fee2e2',
+                    color: r.isSafe ? '#166534' : '#b91c1c',
+                    border: `1px solid ${r.isSafe ? '#86efac' : '#fca5a5'}`
+                  }}>
+                    {r.isSafe ? '+5 Points (Safe)' : '-10 Penalty (Lethal Trap)'}
+                  </span>
+                </div>
+
+                <div style={{ fontSize: '13.5px', marginBottom: '6px' }}>
+                  <span style={{ color: '#64748b', fontWeight: '600' }}>Your Action: </span>
+                  <strong style={{ color: r.isSafe ? '#166534' : '#b91c1c' }}>{r.userChoice}</strong>{' '}
+                  <span>{r.isSafe ? '✅' : '❌'}</span>
+                </div>
+
+                {!r.isSafe && (
+                  <div style={{ fontSize: '13.5px', marginBottom: '8px' }}>
+                    <span style={{ color: '#64748b', fontWeight: '600' }}>Standard Safety Protocol: </span>
+                    <strong style={{ color: '#166534' }}>{r.correctProcedure}</strong>
+                  </div>
+                )}
+
+                <div style={{ marginTop: '8px', fontSize: '13px', lineHeight: '1.5', color: r.isSafe ? '#166534' : '#991b1b', background: r.isSafe ? 'rgba(22, 101, 52, 0.06)' : 'rgba(185, 28, 28, 0.08)', padding: '10px 14px', borderRadius: '10px' }}>
+                  <strong>Safety Consequence:</strong> {r.feedback}
+                </div>
               </div>
             ))}
           </div>
-        </div>
-      ) : !drillCompleted ? (
-        /* Active Drill */
-        <div style={{
-          backgroundColor: THEME.bgGlass,
-          border: `2px solid ${THEME.primary}`,
-          boxShadow: `0 0 25px -2px ${THEME.glow}`,
-          borderRadius: '20px',
-          padding: '32px',
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px', fontSize: '13px', color: '#94a3b8' }}>
-            <span>Checkpoint {currentStepIndex + 1} of {activeDrill.steps.length}</span>
-            <span>Errors: <strong style={{ color: mistakesCount > 0 ? '#f87171' : '#34d399' }}>{mistakesCount}</strong></span>
-          </div>
 
-          <div style={{ width: '100%', backgroundColor: 'rgba(255, 255, 255, 0.08)', height: '6px', borderRadius: '3px', marginBottom: '28px', overflow: 'hidden' }}>
-            <div style={{
-              width: `${((currentStepIndex + 1) / activeDrill.steps.length) * 100}%`,
-              backgroundColor: THEME.primary,
-              boxShadow: `0 0 10px ${THEME.primary}`,
-              height: '100%',
-              transition: 'width 0.3s ease',
-            }} />
-          </div>
-
-          <h2 style={{ fontSize: '19px', fontWeight: '700', color: '#ffffff', lineHeight: '1.5', marginBottom: '24px' }}>
-            {activeDrill.steps[currentStepIndex].situation}
-          </h2>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            {activeDrill.steps[currentStepIndex].options.map((opt, idx) => {
-              const isChosen = selectedOption === opt;
-              let borderCol = 'rgba(255, 255, 255, 0.1)';
-              let bgCol = 'rgba(255, 255, 255, 0.02)';
-
-              if (isAnswered) {
-                if (opt.isCorrect) {
-                  borderCol = '#10b981';
-                  bgCol = 'rgba(16, 185, 129, 0.15)';
-                } else if (isChosen && !opt.isCorrect) {
-                  borderCol = '#ef4444';
-                  bgCol = 'rgba(239, 68, 68, 0.15)';
-                }
-              }
-
-              return (
-                <button
-                  key={idx}
-                  disabled={isAnswered}
-                  onClick={() => handleSelectOption(opt)}
-                  style={{
-                    textAlign: 'left',
-                    padding: '16px 20px',
-                    borderRadius: '12px',
-                    border: `1.5px solid ${borderCol}`,
-                    backgroundColor: bgCol,
-                    color: '#f3f4f6',
-                    cursor: isAnswered ? 'default' : 'pointer',
-                    fontSize: '15px',
-                    lineHeight: '1.4',
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    gap: '12px',
-                  }}
-                >
-                  <span style={{
-                    width: '26px',
-                    height: '26px',
-                    borderRadius: '50%',
-                    backgroundColor: isChosen ? THEME.primary : 'rgba(255, 255, 255, 0.08)',
-                    color: isChosen ? '#070c18' : '#fff',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '12px',
-                    fontWeight: '800',
-                    flexShrink: 0,
-                  }}>
-                    {idx + 1}
-                  </span>
-                  <span>{opt.text}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          {isAnswered && (
-            <div style={{ marginTop: '28px', paddingTop: '20px', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
-              <div style={{
-                padding: '14px 18px',
-                borderRadius: '10px',
-                backgroundColor: selectedOption.isCorrect ? 'rgba(16, 185, 129, 0.12)' : 'rgba(239, 68, 68, 0.12)',
-                border: `1px solid ${selectedOption.isCorrect ? '#10b981' : '#ef4444'}`,
-                marginBottom: '20px',
-                fontSize: '14px',
-                lineHeight: '1.5',
-              }}>
-                <strong style={{ color: selectedOption.isCorrect ? '#34d399' : '#f87171' }}>
-                  {selectedOption.isCorrect ? 'Protocol Followed: ' : 'Critical Hazard: '}
-                </strong>
-                <span style={{ color: '#d1d5db' }}>{selectedOption.feedback}</span>
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <button
-                  onClick={handleNextStep}
-                  style={{
-                    padding: '12px 24px',
-                    backgroundColor: THEME.primary,
-                    color: '#070c18',
-                    border: 'none',
-                    borderRadius: '10px',
-                    fontWeight: '800',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    boxShadow: `0 0 15px ${THEME.glow}`,
-                  }}
-                >
-                  {currentStepIndex < activeDrill.steps.length - 1 ? 'Proceed to Next Checkpoint →' : 'Complete Evacuation Drill ✓'}
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      ) : (
-        /* Completed Screen */
-        <div style={{
-          backgroundColor: THEME.bgGlass,
-          border: `2px solid ${THEME.primary}`,
-          boxShadow: `0 0 30px -2px ${THEME.glow}`,
-          borderRadius: '20px',
-          padding: '40px 28px',
-          textAlign: 'center',
-        }}>
-          <div style={{ fontSize: '48px', marginBottom: '12px' }}>
-            {mistakesCount === 0 ? '🏆' : '🛡️'}
-          </div>
-          <h2 style={{ fontSize: '26px', color: '#ffffff', margin: 0, fontWeight: '800' }}>
-            Evacuation Successful!
-          </h2>
-          <p style={{ color: '#94a3b8', fontSize: '15px', marginTop: '8px' }}>
-            You have safely cleared <strong>{activeDrill.title}</strong>.
-          </p>
-
-          <div style={{
-            display: 'inline-block',
-            backgroundColor: 'rgba(255, 140, 0, 0.08)',
-            border: `1px solid ${THEME.border}`,
-            borderRadius: '12px',
-            padding: '16px 32px',
-            margin: '24px 0',
-          }}>
-            <span style={{ fontSize: '12px', color: THEME.primary, fontWeight: '700', letterSpacing: '0.05em' }}>
-              EVACUATION EVALUATION
-            </span>
-            <div style={{ fontSize: '20px', fontWeight: '800', color: mistakesCount === 0 ? '#34d399' : '#fb923c', marginTop: '6px' }}>
-              {mistakesCount === 0 ? 'Zero Safety Violations (Flawless)' : `${mistakesCount} Dangerous Action(s) Noted`}
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+          {/* Action CTAs */}
+          <div style={{ display: 'flex', gap: '14px', justifyContent: 'center' }}>
             <button
-              onClick={() => startDrill(activeDrill)}
+              onClick={() => {
+                setDrillSummary(null);
+                setUserDecisions({});
+              }}
               style={{
-                padding: '10px 22px',
+                padding: '12px 26px',
                 borderRadius: '10px',
-                backgroundColor: THEME.primary,
-                color: '#070c18',
                 border: 'none',
+                backgroundColor: '#255d69',
+                color: '#ffffff',
                 fontWeight: '800',
                 cursor: 'pointer',
                 fontSize: '14px',
+                boxShadow: '0 4px 14px rgba(37, 93, 105, 0.3)',
               }}
             >
-              Replay Drill
+              Retake Drill to Recover Points ↻
             </button>
             <button
-              onClick={resetToDirectory}
+              onClick={() => navigate('/dashboard')}
               style={{
-                padding: '10px 22px',
+                padding: '12px 26px',
                 borderRadius: '10px',
-                backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                color: '#fff',
-                border: '1px solid rgba(255, 255, 255, 0.15)',
+                border: '1.5px solid #cbd5e1',
+                backgroundColor: '#ffffff',
+                color: '#1e293b',
                 fontWeight: '700',
                 cursor: 'pointer',
                 fontSize: '14px',
               }}
             >
-              Back to Directory
+              Return to Dashboard
             </button>
           </div>
         </div>
       )}
+
     </div>
   );
 }

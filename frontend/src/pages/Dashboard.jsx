@@ -3,14 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import { getCurrentUser, getActiveBroadcast } from '../api.js';
 import './Dashboard.css';
 
+// Light pastel boxes with dark text:
 const MODULES = [
   {
     id: 'drills',
     title: 'Virtual Evacuation Drills',
     desc: 'Step-by-step simulated drills for fire, earthquake and flood scenarios.',
     to: '/drills',
-    neonColor: '#ff8c00', // Neon Orange
-    neonGlow: 'rgba(255, 140, 0, 0.55)',
+    bgColor: '#d7edf2', // Ocean Cyan Pastel
+    borderColor: '#6EADBC',
+    glowColor: 'rgba(110, 173, 188, 0.45)',
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="12" cy="5" r="2.5" />
@@ -25,8 +27,9 @@ const MODULES = [
     title: 'Preparedness Quizzes',
     desc: 'Short quizzes on disaster awareness and response with protocol tracking.',
     to: '/quiz',
-    neonColor: '#00b4d8', // Electric Blue
-    neonGlow: 'rgba(0, 180, 216, 0.55)',
+    bgColor: '#def2e5', // Soft Sage Mint Pastel
+    borderColor: '#9FCBAD',
+    glowColor: 'rgba(159, 203, 173, 0.45)',
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
@@ -40,8 +43,9 @@ const MODULES = [
     title: 'Awareness Games',
     desc: 'Light interactive games that build split-second emergency habits.',
     to: '/games',
-    neonColor: '#10b981', // Neon Emerald
-    neonGlow: 'rgba(16, 185, 129, 0.55)',
+    bgColor: '#fef5dc', // Warm Buttery Cream Pastel
+    borderColor: '#e8c973',
+    glowColor: 'rgba(232, 201, 115, 0.5)',
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
         <rect x="2" y="6" width="20" height="12" rx="3" />
@@ -56,8 +60,9 @@ const MODULES = [
     title: 'Ask Satark AI',
     desc: 'Gemini AI assistant for safety procedures, drill steps and helplines.',
     to: '/chatbot',
-    neonColor: '#b5179e', // Neon Purple / Magenta
-    neonGlow: 'rgba(181, 23, 158, 0.55)',
+    bgColor: '#e5e1f0', // Soft Lavender-Slate Tint
+    borderColor: '#9e92bc',
+    glowColor: 'rgba(158, 146, 188, 0.45)',
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
         <rect x="3" y="11" width="18" height="10" rx="2" />
@@ -88,7 +93,7 @@ export default function Dashboard() {
           localStorage.setItem('sr_user', JSON.stringify(res.user));
         }
       } catch (err) {
-        console.error('Could not refresh profile stats:', err.message);
+        console.error('Could not refresh stats:', err.message);
       }
 
       try {
@@ -96,9 +101,7 @@ export default function Dashboard() {
         if (bRes?.broadcast) {
           setBroadcast(bRes.broadcast);
         }
-      } catch (err) {
-        // Broadcast silent fail if not admin
-      }
+      } catch (err) {}
     }
     loadData();
   }, []);
@@ -109,16 +112,14 @@ export default function Dashboard() {
     navigate('/auth');
   };
 
-  // Gamification: Badge Calculation
   const getBadge = (score = 0) => {
-    if (score >= 100) return { title: 'Campus Warden', color: '#10b981', min: 100, next: 'Max Rank' };
-    if (score >= 40) return { title: 'Emergency Ready', color: '#00b4d8', min: 40, next: 'Campus Warden (100 pts)' };
-    return { title: 'Trainee Scout', color: '#ff8c00', min: 0, next: 'Emergency Ready (40 pts)' };
+    if (score >= 100) return { title: 'Campus Warden', color: '#1b644d', next: 'Max Rank' };
+    if (score >= 40) return { title: 'Emergency Ready', color: '#255d69', next: 'Campus Warden (100 pts)' };
+    return { title: 'Trainee Scout', color: '#544c1d', next: 'Emergency Ready (40 pts)' };
   };
 
   const badge = getBadge(user?.totalScore || 0);
 
-  // Weak area finder from history
   const getWeakArea = () => {
     if (!user?.quizHistory || user.quizHistory.length === 0) return null;
     const lowAttempt = [...user.quizHistory].reverse().find((h) => h.percentage < 60);
@@ -130,7 +131,7 @@ export default function Dashboard() {
 
   return (
     <div className="home">
-      {/* Top Navbar */}
+      {/* Top Header */}
       <header className="home__header">
         <div className="home__brand">
           <div className="home__brand-icon">🛡️</div>
@@ -144,15 +145,15 @@ export default function Dashboard() {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '6px',
-                background: 'rgba(245, 158, 11, 0.15)',
-                border: '1.5px solid #f59e0b',
-                color: '#f59e0b',
-                padding: '6px 14px',
+                background: '#F1F7D4',
+                border: '1.5px solid #F1F7D4',
+                color: '#262137',
+                padding: '7px 16px',
                 borderRadius: '8px',
-                fontSize: '12px',
+                fontSize: '12.5px',
                 fontWeight: '800',
                 cursor: 'pointer',
-                boxShadow: '0 0 12px rgba(245, 158, 11, 0.35)',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
               }}
             >
               ⚙️ Admin Portal
@@ -166,38 +167,39 @@ export default function Dashboard() {
         </div>
       </header>
 
-      {/* 🚨 Live Emergency Broadcast Banner (Agar notice available ho) */}
+      {/* Live Campus Notice (Light Box) */}
       {broadcast && broadcast.message && (
         <div style={{
-          backgroundColor: broadcast.severity === 'emergency' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(245, 158, 11, 0.12)',
-          border: `1.5px solid ${broadcast.severity === 'emergency' ? '#ef4444' : '#f59e0b'}`,
-          borderRadius: '16px',
-          padding: '14px 20px',
-          marginBottom: '26px',
+          backgroundColor: '#F1F7D4',
+          border: '2px solid #6EADBC',
+          borderRadius: '18px',
+          padding: '16px 22px',
+          marginBottom: '28px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           gap: '14px',
-          boxShadow: `0 0 20px -5px ${broadcast.severity === 'emergency' ? 'rgba(239, 68, 68, 0.4)' : 'rgba(245, 158, 11, 0.3)'}`,
+          boxShadow: '0 8px 24px -5px rgba(0,0,0,0.3)',
+          color: '#262137',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <span style={{ fontSize: '22px' }}>{broadcast.severity === 'emergency' ? '🚨' : '📢'}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <span style={{ fontSize: '26px' }}>📢</span>
             <div>
-              <strong style={{ color: broadcast.severity === 'emergency' ? '#f87171' : '#fbbf24', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              <strong style={{ color: '#262137', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                 INSTITUTE NOTICE: {broadcast.title}
               </strong>
-              <p style={{ margin: '2px 0 0 0', color: '#e2e8f0', fontSize: '13.5px' }}>
+              <p style={{ margin: '3px 0 0 0', color: '#4A4466', fontSize: '13.5px', fontWeight: '500' }}>
                 {broadcast.message}
               </p>
             </div>
           </div>
-          <span style={{ fontSize: '11px', color: '#94a3b8', whiteSpace: 'nowrap' }}>
-            Live Broadcast
+          <span style={{ fontSize: '11px', color: '#255d69', fontWeight: '800', background: 'rgba(110,173,188,0.25)', padding: '5px 12px', borderRadius: '20px', whiteSpace: 'nowrap' }}>
+            LIVE NOTICE
           </span>
         </div>
       )}
 
-      {/* Hero Header with Location Priority Pill */}
+      {/* Hero Header */}
       <section className="home__hero">
         <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '14px' }}>
           <div className="campus-status-pill">
@@ -209,73 +211,62 @@ export default function Dashboard() {
             display: 'inline-flex',
             alignItems: 'center',
             gap: '6px',
-            padding: '6px 14px',
+            padding: '6px 16px',
             borderRadius: '30px',
-            background: 'rgba(255, 140, 0, 0.1)',
-            border: '1px solid rgba(255, 140, 0, 0.3)',
-            color: '#ff8c00',
+            background: 'rgba(110, 173, 188, 0.2)',
+            border: '1.5px solid #6EADBC',
+            color: '#6EADBC',
             fontSize: '12px',
-            fontWeight: '700',
+            fontWeight: '800',
           }}>
-            📍 Priority Zone: Seismic Zone IV & Urban Fire Safety
+            📍 Priority Zone: Seismic Zone IV & Fire Safety
           </div>
         </div>
 
         <div className="home__greeting-box">
           <h1>Welcome back{user?.fullName ? `, ${user.fullName.split(' ')[0]}` : ''}.</h1>
           <p>
-            ID / Section: <strong style={{ color: '#fff' }}>{user?.roleField || 'Registered Student'}</strong> • Complete location drills to unlock your Safety Certificate.
+            ID / Section: <strong style={{ color: '#F1F7D4' }}>{user?.roleField || 'Registered Student'}</strong> • Complete location drills to unlock your Safety Certificate.
           </p>
         </div>
       </section>
 
-      {/* 📊 Student Preparedness Snapshot (Progress & Badge Bar) */}
-      <section style={{
-        backgroundColor: 'rgba(13, 20, 38, 0.8)',
-        border: '1px solid rgba(255, 255, 255, 0.08)',
-        borderRadius: '20px',
-        padding: '22px 28px',
-        marginBottom: '32px',
-        display: 'grid',
-        gridTemplateColumns: '1.2fr 1fr 1fr',
-        gap: '20px',
-        alignItems: 'center',
-      }}>
+      {/* 📊 Light Snapshot Panel with Dark Text */}
+      <section className="light-snapshot-panel">
         {/* Readiness Meter */}
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '12px' }}>
-            <span style={{ color: '#94a3b8', fontWeight: '700', textTransform: 'uppercase' }}>Safety Readiness Score</span>
-            <strong style={{ color: '#00b4d8' }}>{user?.totalScore || 0} pts (Target: 100)</strong>
+            <span style={{ color: '#4A4466', fontWeight: '800', textTransform: 'uppercase' }}>Readiness Score</span>
+            <strong style={{ color: '#255d69', fontSize: '13px' }}>{user?.totalScore || 0} pts (Target: 100)</strong>
           </div>
-          <div style={{ width: '100%', backgroundColor: 'rgba(255, 255, 255, 0.06)', height: '8px', borderRadius: '4px', overflow: 'hidden' }}>
+          <div style={{ width: '100%', backgroundColor: 'rgba(74, 68, 102, 0.15)', height: '10px', borderRadius: '6px', overflow: 'hidden' }}>
             <div style={{
               width: `${Math.min(100, ((user?.totalScore || 0) / 100) * 100)}%`,
-              backgroundColor: '#00b4d8',
-              boxShadow: '0 0 10px #00b4d8',
+              backgroundColor: '#6EADBC',
               height: '100%',
               transition: 'width 0.4s ease',
             }} />
           </div>
-          <span style={{ fontSize: '11px', color: '#64748b', marginTop: '6px', display: 'block' }}>
+          <span style={{ fontSize: '11px', color: '#5c557c', marginTop: '6px', display: 'block', fontWeight: '600' }}>
             Next Rank: {badge.next}
           </span>
         </div>
 
-        {/* Badge & Total Drills */}
-        <div style={{ borderLeft: '1px solid rgba(255, 255, 255, 0.06)', paddingLeft: '20px' }}>
-          <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: '700', textTransform: 'uppercase' }}>Current Rank</span>
-          <div style={{ fontSize: '18px', fontWeight: '800', color: badge.color, marginTop: '4px' }}>
+        {/* Current Rank Badge */}
+        <div style={{ borderLeft: '2px solid rgba(74, 68, 102, 0.15)', paddingLeft: '24px' }}>
+          <span style={{ fontSize: '11px', color: '#4A4466', fontWeight: '800', textTransform: 'uppercase' }}>Current Rank</span>
+          <div style={{ fontSize: '20px', fontWeight: '800', color: badge.color, marginTop: '4px' }}>
             🎖️ {badge.title}
           </div>
-          <span style={{ fontSize: '12px', color: '#cbd5e1' }}>
+          <span style={{ fontSize: '12.5px', color: '#5c557c', fontWeight: '600' }}>
             {user?.quizzesCompleted || 0} drills passed
           </span>
         </div>
 
-        {/* Certificate / Weak Area Alert */}
-        <div style={{ borderLeft: '1px solid rgba(255, 255, 255, 0.06)', paddingLeft: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        {/* Certificate Button / Weak Area Alert */}
+        <div style={{ borderLeft: '2px solid rgba(74, 68, 102, 0.15)', paddingLeft: '24px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {weakArea && (
-            <div style={{ fontSize: '12px', color: '#f87171', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <div style={{ fontSize: '12.5px', color: '#991b1b', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <span>⚠️</span>
               <span>Needs Practice: <strong>{weakArea}</strong></span>
             </div>
@@ -284,13 +275,13 @@ export default function Dashboard() {
           <button
             onClick={() => isCertified && setShowCertModal(true)}
             style={{
-              padding: '8px 16px',
-              borderRadius: '8px',
-              border: isCertified ? '1.5px solid #10b981' : '1px solid rgba(255, 255, 255, 0.1)',
-              backgroundColor: isCertified ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255, 255, 255, 0.03)',
-              color: isCertified ? '#34d399' : '#64748b',
+              padding: '10px 18px',
+              borderRadius: '10px',
+              border: isCertified ? '2px solid #1b644d' : '1px solid rgba(74, 68, 102, 0.25)',
+              backgroundColor: isCertified ? '#ddf1e4' : 'rgba(74, 68, 102, 0.08)',
+              color: isCertified ? '#1b644d' : '#5c557c',
               cursor: isCertified ? 'pointer' : 'not-allowed',
-              fontWeight: '700',
+              fontWeight: '800',
               fontSize: '12.5px',
               display: 'flex',
               alignItems: 'center',
@@ -303,48 +294,46 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* Exact 2x2 Glowing Cards Grid */}
+      {/* 2x2 Glowing Light Cards Grid */}
       <section className="home__grid">
         {MODULES.map((m) => (
           <article
             key={m.id}
-            className="neon-card"
+            className="light-pastel-card"
             style={{
-              '--neon-color': m.neonColor,
-              '--neon-glow': m.neonGlow,
+              '--card-bg': m.bgColor,
+              '--card-border': m.borderColor,
+              '--card-glow': m.glowColor,
             }}
             onClick={() => navigate(m.to)}
           >
-            <div className="neon-card__bg-ambient" />
-            <div className="neon-card__wave" />
-
-            <div className="neon-card__content">
+            <div className="light-pastel-card__content">
               <h2>{m.title}</h2>
               <p>{m.desc}</p>
-              <span className="neon-card__cta">
+              <span className="light-pastel-card__cta">
                 Launch Module <span>→</span>
               </span>
             </div>
 
-            <div className="neon-card__icon-box">
+            <div className="light-pastel-card__icon-box">
               {m.icon}
             </div>
           </article>
         ))}
       </section>
 
-      {/* Recent Activity Table */}
+      {/* Light Recent Activity Table with Dark Text */}
       {user?.quizHistory && user.quizHistory.length > 0 && (
-        <section className="history-section">
-          <div className="history-header">
+        <section className="history-section-light">
+          <div className="history-header-light">
             <h2>Recent Simulation Attempts</h2>
-            <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '600' }}>
+            <span style={{ fontSize: '13px', color: '#4A4466', fontWeight: '700' }}>
               Showing last {Math.min(user.quizHistory.length, 5)} attempts
             </span>
           </div>
 
           <div className="history-table-wrapper">
-            <table className="history-table">
+            <table className="history-table-light">
               <thead>
                 <tr>
                   <th>Emergency Module</th>
@@ -358,30 +347,32 @@ export default function Dashboard() {
                   const isPassed = h.percentage >= 60;
                   return (
                     <tr key={i}>
-                      <td style={{ fontWeight: '700', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <td style={{ fontWeight: '800', display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <span style={{
-                          width: '7px',
-                          height: '7px',
+                          width: '9px',
+                          height: '9px',
                           borderRadius: '50%',
-                          backgroundColor: isPassed ? '#10b981' : '#ef4444',
-                          boxShadow: `0 0 8px ${isPassed ? '#10b981' : '#ef4444'}`
+                          backgroundColor: isPassed ? '#1b644d' : '#991b1b',
                         }} />
                         {h.category}
                       </td>
-                      <td>{h.score} / {h.totalQuestions}</td>
+                      <td style={{ fontWeight: '700' }}>{h.score} / {h.totalQuestions}</td>
                       <td>
                         <span
-                          className="accuracy-chip"
                           style={{
-                            backgroundColor: isPassed ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
-                            color: isPassed ? '#34d399' : '#f87171',
-                            border: `1px solid ${isPassed ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
+                            padding: '4px 12px',
+                            borderRadius: '8px',
+                            fontSize: '12px',
+                            fontWeight: '800',
+                            backgroundColor: isPassed ? '#ddf1e4' : '#fee2e2',
+                            color: isPassed ? '#1b644d' : '#991b1b',
+                            border: `1.5px solid ${isPassed ? '#9FCBAD' : '#fca5a5'}`,
                           }}
                         >
                           {h.percentage}%
                         </span>
                       </td>
-                      <td style={{ color: '#64748b' }}>
+                      <td style={{ color: '#5c557c', fontWeight: '600' }}>
                         {new Date(h.completedAt).toLocaleDateString()}
                       </td>
                     </tr>
@@ -393,12 +384,12 @@ export default function Dashboard() {
         </section>
       )}
 
-      {/* 🎓 Certificate Modal (Popup) */}
+      {/* Certificate Modal */}
       {showCertModal && (
         <div style={{
           position: 'fixed',
           inset: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          backgroundColor: 'rgba(27, 23, 38, 0.85)',
           backdropFilter: 'blur(8px)',
           display: 'flex',
           alignItems: 'center',
@@ -407,39 +398,35 @@ export default function Dashboard() {
           padding: '20px',
         }}>
           <div style={{
-            backgroundColor: '#0a0f1d',
-            border: '2px solid #10b981',
-            borderRadius: '24px',
-            padding: '36px',
+            backgroundColor: '#F1F7D4',
+            border: '3px solid #9FCBAD',
+            borderRadius: '26px',
+            padding: '38px',
             maxWidth: '560px',
             width: '100%',
             textAlign: 'center',
-            boxShadow: '0 0 40px rgba(16, 185, 129, 0.3)',
-            position: 'relative',
+            boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
+            color: '#262137',
           }}>
-            <div style={{ fontSize: '48px', marginBottom: '12px' }}>🛡️</div>
-            <span style={{ fontSize: '11px', color: '#10b981', fontWeight: '800', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+            <div style={{ fontSize: '50px', marginBottom: '12px' }}>🛡️</div>
+            <span style={{ fontSize: '11px', color: '#1b644d', fontWeight: '800', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
               SATARK RAHEIN • CERTIFICATE OF PREPAREDNESS
             </span>
-            <h2 style={{ fontSize: '24px', color: '#fff', margin: '10px 0 6px 0', fontWeight: '800' }}>
+            <h2 style={{ fontSize: '26px', color: '#262137', margin: '10px 0 6px 0', fontWeight: '800' }}>
               Campus Safety Compliance
             </h2>
-            <p style={{ color: '#94a3b8', fontSize: '14px', lineHeight: '1.6', margin: '0 0 20px 0' }}>
-              This certifies that <strong style={{ color: '#fff' }}>{user?.fullName}</strong> ({user?.roleField || 'Student'}) has successfully completed certified evacuation drills and disaster simulations with a readiness score of <strong style={{ color: '#10b981' }}>{user?.totalScore} pts</strong>.
+            <p style={{ color: '#4A4466', fontSize: '14.5px', lineHeight: '1.6', margin: '0 0 20px 0', fontWeight: '500' }}>
+              This certifies that <strong style={{ color: '#262137' }}>{user?.fullName}</strong> ({user?.roleField || 'Student'}) has successfully completed certified evacuation drills and disaster simulations with a readiness score of <strong style={{ color: '#1b644d' }}>{user?.totalScore} pts</strong>.
             </p>
-
-            <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '12px', padding: '12px', fontSize: '12px', color: '#cbd5e1', marginBottom: '24px' }}>
-              Verified under National Disaster Management Life-Safety Protocols • Date: {new Date().toLocaleDateString()}
-            </div>
 
             <button
               onClick={() => setShowCertModal(false)}
               style={{
-                padding: '10px 24px',
-                backgroundColor: '#10b981',
-                color: '#070c18',
+                padding: '12px 28px',
+                backgroundColor: '#262137',
+                color: '#F1F7D4',
                 border: 'none',
-                borderRadius: '10px',
+                borderRadius: '12px',
                 fontWeight: '800',
                 cursor: 'pointer',
                 fontSize: '14px',
